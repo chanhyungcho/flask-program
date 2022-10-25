@@ -11,6 +11,7 @@
 주소: 서울
 ********************************
 """
+from util.common import Common
 
 class Person(object):
     def __init__(self,name,ssn,add):
@@ -81,24 +82,6 @@ class Person(object):
     #            del ls[i]
         del ls[[i for i,j in enumerate(ls) if j.name == name][0]]
 
-    @staticmethod
-    def main():
-        ls = []
-        while True:
-            menu = Person.print_menu()
-            if menu == 1:
-                print("##1. 명부 등록##")
-                ls.append(Person.new_pr())
-            elif menu == 2:
-                print("##2. 명부 출력##")
-                Person.print_pr(ls)
-            elif menu == 3:
-                print("##3. 명부 삭제##")
-                Person.delect_pr(ls,input("삭제할 이름:"))
-            elif menu == 4:
-                print("##4. 종료##")
-                break
-            else:
-                print("잘못된 선택입니다. 다시 선택하십시오.")
 
-Person.main()
+
+

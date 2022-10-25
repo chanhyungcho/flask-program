@@ -57,8 +57,8 @@ class Grade(object):
         self.get_grade()
 
 
-    def print_info(self):
-        print(f"{self.name} {self.ko} {self.en} {self.ma} {self.get_total()} {self.get_avg()} {self.get_grade()}")
+    def __str__(self):
+        return f"{self.name} {self.ko} {self.en} {self.ma} {self.get_total()} {self.get_avg()} {self.get_grade()}"
 
     @staticmethod
     def print_menu():
@@ -84,8 +84,7 @@ class Grade(object):
         print("********************************")
         print("이름 국어 영어 수학 총점 평균 학점")
         print("********************************")
-        for i in ls:
-            i.print_info()
+        [print(i) for i in ls]
         print("********************************")
 
     @staticmethod
@@ -95,24 +94,4 @@ class Grade(object):
                 del ls[i]'''
         del ls[[i for i,j in enumerate(ls) if j.name == name][0]] #인덱스와 엘레멘트의 리스트에서 엘레멘트의 이름이 입력한 이름 값과 같으면 그 인덱스를 선택됨.[0]는 그 인덱스의 첫번째라는 의미
 
-    @staticmethod
-    def main():
-        ls = []
-        while True:
-            menu = Grade.print_menu()
-            if menu == 1:
-                print("## 성적 등록 ##")
-                ls.append(Grade.new_grade())
-            elif menu == 2:
-                print("## 성적 출력 ##")
-                Grade.print_grades(ls)
-            elif menu == 3:
-                print("## 성적 삭제 ##")
-                Grade.delect_grade(ls,input("삭제할 이름: "))
-            elif menu == 4:
-                print("## 종료 ##")
-                break
-            else:
-                print("잘못된 선택입니다.")
 
-Grade.main()
