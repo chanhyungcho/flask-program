@@ -28,8 +28,7 @@ class Contact(object):
 
     @staticmethod
     def delect_contact(ls, name):
-        del ls[[i for i,j in enumerate(ls)
-                if j.name == name][0]]
+        del ls[[i for i,j in enumerate(ls) if j.name == name][0]]
 
 
     @staticmethod

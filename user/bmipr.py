@@ -8,9 +8,10 @@ class Bmi(object):
         self.cm = cm
 
     def get_bmi(self):
-        kg = self.kg
         m = self.cm / 100
-        return kg / m ** 2
+        bmi = self.kg / m**2
+        return bmi
+
 
     def get_biman(self):
         bmi = self.get_bmi()

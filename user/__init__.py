@@ -17,7 +17,7 @@ while True:
             Bmi.prints(ls)
         elif submenu == 2:
             print("###bmi 삭제###")
-            Bmi.delect(ls,input("삭제할 이름:"))
+            Bmi.delect(ls, input("삭제할 이름:"))
         elif submenu == 3:
             print("###종료###")
             break

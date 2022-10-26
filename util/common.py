@@ -7,7 +7,7 @@ class Common(object):
         #ls = ["등록", "출력", "삭제", "종료"]
         for i,j in enumerate(ls):
             print(f"{i} {j}")
-        return int(input("메뉴 선택: "))
+        return input("메뉴 선택: ")
 
 
     '''@staticmethod

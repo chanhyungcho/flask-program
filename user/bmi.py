@@ -31,30 +31,30 @@ class Bmii(object):
     def main():
         ls = []
         while True:
-        menu == Bmii.print_menu()
-        if menu ==1:
-            ls.append(Bmii.new_biman())
-        elif menu ==2:
-            Bmii.print_bimans()
-        elif menu ==3:
-            Bmii.delect_biman()
-        elif menu ==4:
-            braek
+            menu == Bmii.print_menu()
+            if menu ==1:
+                ls.append(Bmii.new_biman())
+            elif menu ==2:
+                Bmii.print_bimans()
+            elif menu ==3:
+                Bmii.delect_biman()
+            elif menu ==4:
+                braek
 
-    @classmethod
-    def print_menu(cls):
+    @staticmethod
+    def print_menu():
         pass
 
-    @classmethod
-    def print_bimans(cls):
+    @staticmethod
+    def print_bimans():
         pass
 
-    @classmethod
-    def delect_biman(cls):
+    @staticmethod
+    def delect_biman():
         pass
 
-    @classmethod
-    def new_biman(cls):
+    @staticmethod
+    def new_biman():
         pass
 
 
