@@ -43,8 +43,8 @@ class Plot(object):
         plt.show()
 
     def draw_embarked(self):
-            this = self.entry
-            this["생존결과"] = this["Survived"].replace(0, "사망자").replace(1, "생존자") #replace = 0을 사망자로 바꿔 보여줄것
-            this["승선항구"] = this["Embarked"].replace("C", "쉘버그").replace("S", "사우스헴튼").replace("Q", "퀸즈타운")
-            sns.countplot(data=this, x="승선항구", hue="생존결과")
-            plt.show()
+        this = self.entry
+        this["생존결과"] = this["Survived"].replace(0, "사망자").replace(1, "생존자") #replace = 0을 사망자로 바꿔 보여줄것
+        this["승선항구"] = this["Embarked"].replace("C", "쉘버그").replace("S", "사우스헴튼").replace("Q", "퀸즈타운")
+        sns.countplot(data=this, x="승선항구", hue="생존결과")
+        plt.show()

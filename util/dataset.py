@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-@dataclass
+@dataclass #다 저장됨. 안없어짐.
 class Dataset(object):
 
     context: str # 파일이 저장된 경로
