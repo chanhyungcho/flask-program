@@ -36,9 +36,15 @@ class Plot(object):
     def draw_sex(self):
         this = self.entry
         f, ax = plt.subplots(1, 2, figsize=(18, 8))
-        this['Survived'][this['Sex'] == "male"].value_counts().plot.pie(explode=[0, 0.1], autopct='%1.1f%%', ax=ax[0], shadow=True)
+        this['Survived'][this['Sex'] == "male"].value_counts().plot.pie(explode=[0, 0.1], autopct='%1.1f%%', ax=ax[0], shadow=True) #조건 룹. 연산 [ ], for문이 없으면 if 생략가능
         this['Survived'][this['Sex'] == "female"].value_counts().plot.pie(explode=[0, 0.1], autopct='%1.1f%%', ax=ax[1], shadow=True)
         ax[0].set_title('남성의 생존비율 [0.사망자 vs 1.생존자]')
         ax[1].set_title('여성의 생존비율 [0.사망자 vs 1.생존자]')
         plt.show()
 
+    def draw_embarked(self):
+            this = self.entry
+            this["생존결과"] = this["Survived"].replace(0, "사망자").replace(1, "생존자") #replace = 0을 사망자로 바꿔 보여줄것
+            this["승선항구"] = this["Embarked"].replace("C", "쉘버그").replace("S", "사우스헴튼").replace("Q", "퀸즈타운")
+            sns.countplot(data=this, x="승선항구", hue="생존결과")
+            plt.show()
