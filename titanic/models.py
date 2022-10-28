@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 
 from util.dataset import Dataset
@@ -69,6 +70,15 @@ class TitanicModel(object):
 
     @staticmethod
     def age_ordinal(this)-> object: #연령대 10대,20대,30대
+        for i in [this.train,this.test]:
+            i["Age"] = i["Age"].fillna(-0.5)
+        bins = [-1,0,5,12,18,24,35,68,np.inf] #bins는 자료에서 하나씩 빼는것, 구간을 나눈것. -1~0:Unknown, 0~5:Baby
+        labels = ['Unknown', 'Baby', 'Child', 'Teenager', 'Student', 'Young Adult', 'Adult', 'Senior'] #영어로 먼저 설정
+        age_mapping = {'Unknown': 0, 'Baby': 1, 'Child': 2, 'Teenager': 3, 'Student': 4, #매핑
+                             'Young Adult': 5, 'Adult': 6, 'Senior': 7}
+        for i in[this.train,this.test]:
+            i["AgeGroup"] = pd.cut(i['Age'], bins=bins, labels=labels)
+            i["AgeGroup"] = i["AgeGroup"].map(age_mapping)
         return this
 
     @staticmethod
@@ -82,7 +92,7 @@ class TitanicModel(object):
         this.train = this.train.fillna({'Embarked': 'S'})  # 임시값을 집어넣어라 / fillna /na = not a number
         this.test = this.test.fillna({'Embarked': 'S'})  # 임시값을 집어넣어라 / fillna /na = not a number
         for i in [this.train, this.test]:
-            i['Embarked'] = i['Embarked'].map({"S": 1, "C": 2, "Q":3}) # = 어사인먼트 asignment
+            i['Embarked'] = i['Embarked'].map({"S": 1, "C": 2, "Q": 3}) # = 어사인먼트 asignment / map 매핑
         return this
 
 if __name__ == "__main__":  #스테틱 같은 공간 # main이라 self가 아님
@@ -90,6 +100,6 @@ if __name__ == "__main__":  #스테틱 같은 공간 # main이라 self가 아님
     this = Dataset()
     this.train = t.new_model('train.csv')
     this.test = t.new_model('test.csv')
-    this = TitanicModel.embarked_nominal(this) #
+    this = TitanicModel.age_ordinal(this) #
     print(this.train.columns)
     print(this.train.head()) #위에서 부터 몇 개 볼지 tail()은 아래서 몇개볼지
