@@ -5,6 +5,12 @@ from util.dataset import Dataset
 
 # ['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp',
 #     'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked'],
+#시각화를 통해 얻은 상관관계 변수(variable = feature = column)는
+#Pclass
+#Sex
+#Age
+#Fare
+#Embarked
 # ===null 값===
 # Age            177
 # Cabin          687
@@ -54,6 +60,36 @@ class TitanicModel(object):
             this.test = this.test.drop(i, axis = 1)
         return this
 
-if __name__ == "__main__":
+    #원래 pclass가 들어가지만 숫자로 되어 있어서 컴퓨터에서 알아서 가능
+    @staticmethod
+    def sex_nominal(this)-> object: #female > 1, male > 0
+         for i in [this.train,this.test]:
+             i["Gender"] = i["Sex"].map({"male" : 0, "female" : 1})#gender는 0,1 sex는 male female
+         return this
+
+    @staticmethod
+    def age_ordinal(this)-> object: #연령대 10대,20대,30대
+        return this
+
+    @staticmethod
+    def fare_ordinal(this)-> object: #비싼 것, 보통, 저렴한것 #4등분 pd.qcut()사용
+        for i in [this.train, this.test]:
+            i['FareBand'] = pd.qcut(i['Fare'], 4, labels={1,2,3,4})
+        return this
+
+    @staticmethod
+    def embarked_nominal(this)-> object: #승선항구 S,C,Q
+        this.train = this.train.fillna({'Embarked': 'S'})  # 임시값을 집어넣어라 / fillna /na = not a number
+        this.test = this.test.fillna({'Embarked': 'S'})  # 임시값을 집어넣어라 / fillna /na = not a number
+        for i in [this.train, this.test]:
+            i['Embarked'] = i['Embarked'].map({"S": 1, "C": 2, "Q":3}) # = 어사인먼트 asignment
+        return this
+
+if __name__ == "__main__":  #스테틱 같은 공간 # main이라 self가 아님
     t = TitanicModel()
-    print(t)
+    this = Dataset()
+    this.train = t.new_model('train.csv')
+    this.test = t.new_model('test.csv')
+    this = TitanicModel.embarked_nominal(this) #
+    print(this.train.columns)
+    print(this.train.head()) #위에서 부터 몇 개 볼지 tail()은 아래서 몇개볼지
