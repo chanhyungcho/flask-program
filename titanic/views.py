@@ -29,6 +29,10 @@ class TitanicController(object):
         this = model.age_ordinal(this)
         this = model.fare_ordinal(this)
         this = model.embarked_nominal(this)
+        this = model.title_nominal(this)
+        this = model.drop_features(this,
+                                   'PassengerId','Name', 'Sex', 'Age',
+                                   'SibSp', 'Parch', 'Ticket', 'Fare', 'Cabin')
         return this
 
 

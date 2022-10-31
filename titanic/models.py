@@ -95,11 +95,34 @@ class TitanicModel(object):
             i['Embarked'] = i['Embarked'].map({"S": 1, "C": 2, "Q": 3}) # = 어사인먼트 asignment / map 매핑
         return this
 
+    @staticmethod
+    def title_nominal(this) -> object:
+        combine = [this.train, this.test]
+        for i in combine:
+            i['Title'] = i.Name.str.extract('([A-Za-z]+)\.', expand=False) #i가 리스트였으면 i['']
+        for i in combine:
+            i['Title'] = i['Title'].replace(['Countess', 'Lady', 'Sir'], 'Royal')
+            i['Title'] = i['Title'].replace(['Capt', 'Col', 'Don', 'Dr', 'Major', 'Rev', 'Jonkheer', 'Dona', 'Mme'], 'Rare')
+            i['Title'] = i['Title'].replace('Mlle', 'Mr')
+            i['Title'] = i['Title'].replace('Ms', 'Miss')
+            i['Title'] = i['Title'].fillna(0)
+            i['Title'] = i['Title'].map({
+                'Mr': 1,
+                'Miss': 2,
+                'Mrs': 3,
+                'Master': 4,
+                'Royal': 5,
+                'Rare': 6
+            })
+
+        return this
+
+
 if __name__ == "__main__":  #스테틱 같은 공간 # main이라 self가 아님
     t = TitanicModel()
     this = Dataset()
     this.train = t.new_model('train.csv')
     this.test = t.new_model('test.csv')
-    this = TitanicModel.age_ordinal(this) #
+    this = TitanicModel.title_nominal(this) #
     print(this.train.columns)
     print(this.train.head()) #위에서 부터 몇 개 볼지 tail()은 아래서 몇개볼지
