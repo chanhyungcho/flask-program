@@ -1,5 +1,11 @@
-import cv2
+from io import BytesIO
 
+import cv2
+import requests
+from PIL import Image
+from matplotlib import pyplot as plt
+
+from lenna.models import CannyModel
 from lenna.views import LennaController
 from util.common import Common
 
@@ -11,6 +17,7 @@ cv2.IMREAD_GRAYSCALE : 이미지를 Grayscale로 읽어 들입니다.
                         실제 이미지 처리시 중간단계로 많이 사용합니다.
 cv2.IMREAD_UNCHANGED : 이미지파일을 alpha channel까지 포함하여 읽어 들입니다
 3개의 flag대신에 1, 0, -1을 사용해도 됩니다
+
 Shape is (512, 512, 3)
 Y축: 512 (앞)
 X축: 512 (뒤)
@@ -24,7 +31,8 @@ cv2.destroyAllWindows() 화면에 나타난 윈도우를 종료합니다.
 if __name__ == '__main__':
     api = LennaController()
     while True:
-        menu = Common.menu(["종료", "원본보기", "그레이 스케일", "머신러닝", "배포"])
+        menu = Common.menu(["0-종료", "1-원본보기", "2-그레이스케일",
+                            "3-엣지검출", "9-테스트"])
         if menu == "0":
             print(" ### 종료 ### ")
             break
@@ -37,10 +45,41 @@ if __name__ == '__main__':
             cv2.waitKey(0)
             cv2.destroyAllWindows()
         elif menu == "2":
-            print(" ### 모델링 ### ")
+            print(" ### 그레이스케일 ### ")
         elif menu == "3":
-            print(" ### 머신러닝 ### ")
-        elif menu == "4":
-            print(" ### 배포 ### ")
+            print(" ### 엣지검출 ### ")
+            img = CannyModel().get()
+            edges = cv2.Canny(img, 100, 200)
+
+            plt.subplot(121), plt.imshow(img, cmap='gray')
+            plt.title('Original Image'), plt.xticks([]), plt.yticks([])
+            plt.subplot(122), plt.imshow(edges, cmap='gray')
+            plt.title('Edge Image'), plt.xticks([170]), plt.yticks([200])
+            plt.show()
+        elif menu == "9":
+            print(" ### 테스트 ### ")
+            import numpy as np
+            import cv2 as cv
+            from matplotlib import pyplot as plt
+            ### 디스크에서 읽는 경우 ###
+            # img = cv.imread('./data/roi.jpg', 0)
+            # img = cv.imread(img, 0)
+            ### 메모리에서 읽는 경우 BEGIN ###
+            fname = "https://docs.opencv.org/4.x/roi.jpg"
+            img = Image.open(BytesIO(requests.get(fname,
+                         headers={'User-Agent': 'My User Agent 1.0'}).content))
+            print(f'img type : {type(img)}')
+            img = np.array(img)
+            ### 메모리에서 읽는 경우 END ###
+            edges = cv.Canny(img, 100, 200)
+            plt.subplot(121), plt.imshow(img, cmap='gray')
+            plt.title('Original Image'), plt.xticks([]), plt.yticks([])
+            plt.subplot(122), plt.imshow(edges, cmap='gray')
+            plt.title('Edge Image'), plt.xticks([]), plt.yticks([])
+            plt.show()
         else:
             print(" ### 해당 메뉴 없음 ### ")
+
+
+
+
