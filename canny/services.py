@@ -1,5 +1,5 @@
 from io import BytesIO
-import cv2
+import cv2 as cv
 import numpy as np
 import pandas as pd
 import requests
@@ -117,6 +117,29 @@ def Canny(src, lowThreshold, highThreshold):
                     pass
     return img
 
+
+def Hough(edges):
+    lines = cv.HoughLinesP(edges, 1, np.pi / 180., 120, minLineLength=50, maxLineGap=5)
+    dst = cv.cvtColor(edges, cv.COLOR_GRAY2BGR)
+    if lines is not None:
+        for i in range(lines.shape[0]):
+            pt1 = (lines[i][0][0], lines[i][0][1])
+            pt2 = (lines[i][0][2], lines[i][0][3])
+            cv.line(dst, pt1, pt2, (255, 0, 0), 2, cv.LINE_AA)
+    return dst
+
+def Haar(*params):
+    girl_haar = params[0]
+    girl_original = params[2]
+    if len(girl_haar) == 0:
+        print("얼굴인식 실패")
+        quit()
+    for (x, y, w, h,) in girl_haar:
+        print(f'얼굴의 좌표 : {x},{y},{w},{h}')
+        red = (255, 0, 0)
+        cv.rectangle(girl_original, (x, y), (x + w, y + h), red, thickness=20)
+
+
 def filter2D(src, kernel, delta=0):
     # 가장자리 픽셀을 (커널의 길이 // 2) 만큼 늘리고 새로운 행렬에 저장
     halfX = kernel.shape[0] // 2
@@ -135,27 +158,26 @@ def filter2D(src, kernel, delta=0):
     return dst
 
 def image_read(fname) ->object: #전처리
-    return (lambda x: cv2.imread('./data/' + x))(fname)
-'''
-def gray_scale(img):
-    dst = img[:, :, 0] * 0.114 + img[:, :, 1] * 0.587 + img[:, :, 2] * 0.229  # GRAYSCALE 변환 공식
-    return dst
-'''
+    return (lambda x: cv.imread('./data/' + x))(fname)
 
 
-'''def imshow(img):
-    img = Image.fromarray(img)
-    plt.imshow(img)'''
-'''
-def hough_lines()
-'''
+def ExecuteLambda(*params):
+    cmd = params[0]
+    target = params[1]
+    if cmd == 'IMAGE_READ':
+        return (lambda x: cv.imread('./data/' + x))(target)
+    elif cmd == 'GRAYSCALE':
+        return (lambda x: x[:, :, 0] * 0.114 + x[:, :, 1] * 0.587 + x[:, :, 2] * 0.229)(target)
+    elif cmd == 'IMAGE_FROMARRAY':
+        return (lambda x: Image.fromarray(x))(target)
+
 
 
 if __name__ == '__main__':
     '''CannyModel().show_messi(CannyModel().new_messi())'''
     URL = 'http://amroamroamro.github.io/mexopencv/opencv_contrib/fast_hough_transform_demo_04.png'
     arr = ImageToNumberArray(URL)
-    img = (lambda x: x[:, :, 0] * 0.114 + img[:, :, 1] * 0.587 + img[:, :, 2] * 0.229(img))(arr) #gray_scale
+    img = (lambda x: x[:, :, 0] * 0.114 + img[:, :, 1] * 0.587 + img[:, :, 2] * 0.229)(arr) #gray_scale
     img = Canny(GaussianBlur(img,1,1), 50, 150)
     plt.imshow(lambda x:Image.fromarray(x))(img)
     plt.show()
