@@ -1,9 +1,12 @@
+import copy
 from io import BytesIO
 import cv2 as cv
 import numpy as np
 import pandas as pd
 import requests
 from PIL import Image
+
+from const.path import HAAR, CTX
 from util.dataset import Dataset
 import matplotlib.pyplot as plt
 from const.crawler import HEADERS
@@ -24,6 +27,55 @@ def ImageToNumberArray(url):
     image = Image.open(BytesIO(res2.content))
     return np.array(image)
 
+def Canny(param):
+    return cv.Canny(np.array(param), 50, 51)
+
+def Hough(param):
+    lines = cv.HoughLinesP(param, 1, np.pi / 180., 10, minLineLength=50, maxLineGap=5)
+    dst = cv.cvtColor(param, cv.COLOR_GRAY2BGR)
+    if lines is not None:
+        for i in range(lines.shape[0]):
+            pt1 = (lines[i][0][0], lines[i][0][1])
+            pt2 = (lines[i][0][2], lines[i][0][3])
+            cv.line(dst, pt1, pt2, (255, 0, 0), 2, cv.LINE_AA)
+    return dst
+
+def Haar(params):
+    haar = cv.CascadeClassifier(CTX+ HAAR)
+    girl_haar = haar.detectMultiScale(params, minSize=(150, 150))
+    if len(params) == 0:
+        print("얼굴인식 실패")
+        quit()
+    for (x, y, w, h,) in girl_haar:
+        print(f'얼굴의 좌표 : {x},{y},{w},{h}')
+        cv.rectangle(params, (x, y), (x + w, y + h), (255, 0, 0), thickness=20) #3번째 RED(255,0,0) in  RGB
+    return (x, y, x+w, y+h)
+
+def Mosaic(img,rect,size):
+    (x1, y1, x2, y2) = rect
+    w = x2 - x1
+    h = y2 - y1
+    i_rect = img[y1:y2, x1:x2]
+    i_small = cv.resize(i_rect, (size, size))
+    i_mos = cv.resize(i_small, (w, h), interpolation=cv.INTER_AREA)
+    img2 = img.copy()
+    img2[y1:y2, x1:x2] = i_mos
+    return img2
+
+def mosaics(img, size): #img,size
+    haar = cv.CascadeClassifier(CTX+HAAR)
+    dst = copy.deepcopy(img)
+    face = haar.detectMultiScale(dst, minSize=(150, 150))
+    for (x, y, w, h) in face:
+        print(f'얼굴의 좌표 : {x},{y},{w},{h}')
+        (x1, y1, x2, y2) = (x, y, (x+w), (y+h))
+        w = x2 - x1
+        h = y2 - y1
+        i_rect = img[y1:y2, x1:x2]
+        i_small = cv.resize(i_rect, (size, size))
+        i_mos = cv.resize(i_small, (w, h), interpolation=cv.INTER_AREA)
+        dst[y1:y2, x1:x2] = i_mos
+    return dst
 
 def GaussianBlur(src,sigmax,sigmay):
     # 가로 커널과 세로 커널 행렬을 생성
@@ -37,7 +89,7 @@ def GaussianBlur(src,sigmax,sigmay):
     return filter2D(filter2D(src, mask), maskT)  # 두번 필터링
 
 
-def Canny(src, lowThreshold, highThreshold):
+def Canny2(src, lowThreshold, highThreshold):
     Kx = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]])  # x축 소벨 행렬로 미분
     Ky = np.array([[1, 2, 1], [0, 0, 0], [-1, -2, -1]])  # y축 소벨 행렬로 미분
     Ix = filter2D(src, Kx)
@@ -118,26 +170,7 @@ def Canny(src, lowThreshold, highThreshold):
     return img
 
 
-def Hough(edges):
-    lines = cv.HoughLinesP(edges, 1, np.pi / 180., 120, minLineLength=50, maxLineGap=5)
-    dst = cv.cvtColor(edges, cv.COLOR_GRAY2BGR)
-    if lines is not None:
-        for i in range(lines.shape[0]):
-            pt1 = (lines[i][0][0], lines[i][0][1])
-            pt2 = (lines[i][0][2], lines[i][0][3])
-            cv.line(dst, pt1, pt2, (255, 0, 0), 2, cv.LINE_AA)
-    return dst
 
-def Haar(*params):
-    girl_haar = params[0]
-    girl_original = params[2]
-    if len(girl_haar) == 0:
-        print("얼굴인식 실패")
-        quit()
-    for (x, y, w, h,) in girl_haar:
-        print(f'얼굴의 좌표 : {x},{y},{w},{h}')
-        red = (255, 0, 0)
-        cv.rectangle(girl_original, (x, y), (x + w, y + h), red, thickness=20)
 
 
 def filter2D(src, kernel, delta=0):
@@ -161,15 +194,7 @@ def image_read(fname) ->object: #전처리
     return (lambda x: cv.imread('./data/' + x))(fname)
 
 
-def ExecuteLambda(*params):
-    cmd = params[0]
-    target = params[1]
-    if cmd == 'IMAGE_READ':
-        return (lambda x: cv.imread('./data/' + x))(target)
-    elif cmd == 'GRAYSCALE':
-        return (lambda x: x[:, :, 0] * 0.114 + x[:, :, 1] * 0.587 + x[:, :, 2] * 0.229)(target)
-    elif cmd == 'IMAGE_FROMARRAY':
-        return (lambda x: Image.fromarray(x))(target)
+
 
 
 
