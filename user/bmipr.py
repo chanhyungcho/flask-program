@@ -48,4 +48,5 @@ class Bmi(object):
         del ls[[i for i,j in enumerate(ls) if j.name == name][0]]
 
 
-
+if __name__ == '__main__':
+    Bmi.new_bmi()

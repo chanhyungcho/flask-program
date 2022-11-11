@@ -14,7 +14,7 @@ class TitanicController(object):
     dataset = Dataset()
     model = TitanicModel()
 
-    def mining(self): # 원래 있어야
+    def mining(self):
         pass
 
     def preprocess(self,train,test) -> object: #전처리
@@ -46,8 +46,10 @@ class TitanicController(object):
         this.train = model.create_train(this)
         return this
 
-    def learning(self) -> object: #기계학습
-        pass
+    def learning(self,train, test, algo): #기계학습
+        this = self.modeling(train, test)
+        accuracy = self.model.get_accuracy(this,algo)
+        print(f'서포트벡터머신 정확도: {accuracy}%')
 
     def submit(self): #배포
         pass

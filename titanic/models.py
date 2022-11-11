@@ -1,8 +1,12 @@
 import numpy as np
 import pandas as pd
-
 from util.dataset import Dataset
-
+from sklearn.model_selection import KFold
+from sklearn.model_selection import cross_val_score
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC
 
 # ['PassengerId', 'Survived', 'Pclass', 'Name', 'Sex', 'Age', 'SibSp',
 #     'Parch', 'Ticket', 'Fare', 'Cabin', 'Embarked'],
@@ -117,6 +121,19 @@ class TitanicModel(object):
 
         return this
 
+    @staticmethod
+    def create_k_fold() -> object: #생성자
+        return KFold(n_splits=10, shuffle=True, random_state=0)
+
+    @staticmethod
+    def get_accuracy(this,algo):
+        score = cross_val_score(SVC(),
+                                this.train,
+                                this.label,
+                                cv =TitanicModel.create_k_fold(),
+                                n_jobs=1,
+                                scoring='accuracy')
+        return round(np.mean(score)*100,2)
 
 if __name__ == "__main__":  #스테틱 같은 공간 # main이라 self가 아님
     t = TitanicModel()
