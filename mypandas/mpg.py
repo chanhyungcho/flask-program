@@ -71,7 +71,7 @@ def my_menu(ls):
 
 
 
-class Mpg:
+class MpgService:
     def __init__(self): #변수로 쓸 것이 중복될 경우 클래스 생성자로 넣어주는게 좋음.
         self.mpg_add_test = None
         self.mpg = pd.read_csv('./data/mpg.csv')
@@ -147,7 +147,6 @@ class Mpg:
         # 후 다음 문제 풀이
 
     def which_higher_between_suv_compact(self):
-        clazz_cty=self.mpg.query('cty')[['clazz']]
         print("suv 자동차의 도시연비:",self.mpg.query("clazz == 'suv'")['cty'].mean()) #clazz가 suv인 행만 추출한 다음 cty 호출 후 그 객체의 평균구함
         print("compact 자동차의 도시연비:",self.mpg.query("clazz == 'compact'")['cty'].mean())
 
@@ -162,7 +161,7 @@ class Mpg:
 
 
 if __name__ == '__main__':
-    t = Mpg()
+    t = MpgService()
     while True:
         key = my_menu(MENUS)
         if key == "0":

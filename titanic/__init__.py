@@ -1,3 +1,4 @@
+
 from titanic.template import Plot
 from titanic.views import TitanicController
 from util.common import Common
