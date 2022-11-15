@@ -1,11 +1,14 @@
 import pandas as pd
 from sklearn.preprocessing import OrdinalEncoder
+from imblearn.under_sampling import RandomUnderSampler
+from sklearn.model_selection import train_test_split
 
-STROKE_MENUS = ["종료",
-         "데이터구하기",
-         "타킷변수설정",
-         "데이터처리",
-         "시각화",
+STROKE_MENUS = ["종료",#0
+         "데이터구하기",#1
+         "변수한글화",#2
+         "연속형변수편집",#3
+         "범주형변수편집",#4
+         "샘플링",#5
          "모델링",
          "학습",
          "예측"]
@@ -28,9 +31,9 @@ stroke_meta = {
 stroke_menu = {
     "1" : lambda t: t.spec(),
     "2" : lambda t: t.rename_meta(),
-    "3" : lambda t: t.etc_data(),
-    "4" : lambda t: t.categorical_variables(),
-    "5" : lambda t: t.categorical_variables(),
+    "3" : lambda t: t.interval_variables(),
+    "4" : lambda t: t.nominal_variables(),
+    "5" : lambda t: t.sampling(),
     "6" : lambda t: t.find_highest_hwy(),
     "7" : lambda t: t.which_cty_in_suv_compact(),
     "8" : lambda t: t.find_top5_hwy_in_audi(),
@@ -108,9 +111,10 @@ class StrokeService:
     타깃변수값: 과거에 한번이라도 뇌졸중이 발병했으면 1, 아니면 0
     '''
 
+    def ratio_variables(self): # 해당 컬럼이 없음
+        pass
 
-
-    def etc_data(self):
+    def interval_variables(self):
         df = self.my_storke
         interval = ['나이', '평균혈당', '체질량지수']
         pd.options.display.float_format = '{:.2f}'.format
@@ -121,7 +125,7 @@ class StrokeService:
         t=self.adult_stroke
         c1 = t['평균혈당'] <=232.64
         c2 = t['체질량지수'] <=60.3
-        self.adult_stroke = t[c1&c2]
+        self.adult_stroke = t[c1 & c2]
         print(f'-----이상치 제거한 성인객체스펙-----\n{self.adult_stroke.shape}')
 
 
@@ -130,7 +134,7 @@ class StrokeService:
                    '주거형태','흡연여부','고혈압',]
     '''
 
-    def categorical_variables(self):
+    def nominal_variables(self):
         t = self.adult_stroke
         category = ['성별','심장병','기혼여부','근무형태',
                    '주거형태','흡연여부','고혈압']
@@ -146,7 +150,21 @@ class StrokeService:
         print('###finish preprocess')
         self.storke.to_csv("./save/stroke.csv")
 
+    def ordinal_variables(self): # 해당 컬럼이 없음
+        pass
 
+    def sampling(self):
+        df = pd.read_csv('./save/stroke.csv')
+        data = df.drop(['뇌졸중'],axis=1)
+        target = df['뇌졸중']
+        undersample = RandomUnderSampler(sampling_strategy=0.333, random_state=2)
+        data_under, target_under = undersample.fit(data, target)
+        X_train, X_test, y_train, y_test = train_test_split(data_under, target_under, test_size=0.5,
+                            random_state=42, stratify=target_under)
+        print('X_train shape:', X_train.shape)
+        print('X_test shape:', X_test.shape)
+        print('y_train shape:', y_train.shape)
+        print('y_test shape:', y_test.shape)
 
 
 

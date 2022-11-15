@@ -1,4 +1,4 @@
-from mypandas.mpg import Mpg, mpg_menu, MPG_MENUS
+from mypandas.mpg import Mpg, oklahoma_menu, OKLAHOMA_MENUS
 def my_menu(ls):
     for i, j in enumerate(ls):
         print(f"{i}. {j}")
@@ -6,7 +6,7 @@ def my_menu(ls):
 if __name__ == '__main__':
     t = Mpg()
     while True:
-        menu = my_menu(MPG_MENUS)
+        menu = my_menu(OKLAHOMA_MENUS)
         if menu == '0':
             print("종료")
             break
