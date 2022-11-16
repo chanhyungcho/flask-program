@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from sklearn.preprocessing import OrdinalEncoder
-from imblearn.under_sampling import RandomUnderSampler
+
 from sklearn.model_selection import train_test_split
 
 OKLAHOMA_MENUS = ["종료",#0
@@ -111,9 +111,10 @@ None
 
 class OklahomaService:
     def __init__(self):
-        self.oklahoma = pd.read_csv('./data/comb32.csv')
+        self.target = None
+        self.data = None
         self.my_oklahoma = None
-
+        self.oklahoma = pd.read_csv('./data/comb32.csv')
 
     '''
        1.스펙보기
@@ -148,13 +149,24 @@ class OklahomaService:
         print(self.my_oklahoma.columns)
 
 
+    '''
+    'AGEP' : '나이',
+     'BDSP' : '침실수',
+     'ELEP' : '월전기료',
+    'GASP' : '월가스비',
+    'HINCP' : '가계소득',
+    'NRC' : '자녀수',
+    'RMSP' : '방수',
+    'VALP' : '주택가격',
+    'VALP_B1' : '주택가격중위수'
+    '''
 
 
 
-
-    def interval_variables(self):
-        df = self.oklahoma
-        cols = ['AGEP','BDSP','CONP','ELEP','GASP','HINCP','NRC','RMSP','VALP']
+    def interval_variables(self): #숫자 자체. 구간변수.
+        self.rename_meta()
+        df = self.my_oklahoma
+        cols = ['나이','침실수','CONP','월전기료','월가스비','가계소득','자녀수','방수','주택가격']
         print(f'범주형 변수 데이터타입\n {df[cols].dtypes}')
         print(f'범주형 변수 결측값\n {df[cols].isnull().sum()}')
         print(f'범주형 변수 데이터타입\n {df[cols].isna().any()[lambda x:x]}')
@@ -163,28 +175,20 @@ class OklahomaService:
         self.oklahoma.to_csv("./save/oklahoma.csv")
 
 
-        '''
-        df = self.my_oklahoma
-        interval = ['월전기료','나이','가계소득']
-        df[interval].describe()
-        data_1 = df[df['주택가격중위수']==1]['가계소득']
-        data_0 = df[df['주택가격중위수']==0]['가계소득']
-        print(stats.ttest.ind(data_1,data_0))
-        data_1 = df[df['주택가격중위수']==1]['나이']
-        data_0 = df[df['주택가격중위수']==0]['나이']
-        print(stats.ttest.ind(data_1,data_0))
-        data_1 = df[df['주택가격중위수'] == 1]['월전기료']
-        data_0 = df[df['주택가격중위수'] == 0]['월전기료']
-        print(stats.ttest.ind(data_1, data_0))'''
-
-
-    def ratio_variables(self): # 해당 컬럼이 없음
+    def ratio_variables(self): # 비율
         pass
 
-    def nominal_variables(self):
-        pass
+    '''4.범주형 = ['성별','심장병','기혼여부','근무형태',
+                   '주거형태','흡연여부','고혈압',]'''
 
-    def ordinal_variables(self): # 해당 컬럼이 없음
+    def nominal_variables(self): #순서가 없는
+        o = self.my_oklahoma
+        cols = ['COW', 'FPARC', 'LANX', 'SCH', 'SCHL']
+        o[cols] = o[cols].fillna(0).astype(np.int64)
+        o_with_VALP_B1 = o.drop(['주택가격'], axis=1)
+        o_with_VALP_B1.to_csv('./save/2017DC1.csv', index=False)
+
+    def ordinal_variables(self): # 순서가 있는
         pass
 
     '''
@@ -195,29 +199,44 @@ class OklahomaService:
     '''
 
     def target_id(self):
-        o = self.my_oklahoma
-        cols = [ 'COW','FPARC','LANX','SCH','SCHL']
-        o[cols] = o[cols].fillna(0).astype(np.int64)
-        print(o[cols].isnull().mean())
-
-        o_with_VALP_B1 = o.drop(['주택가격'], axis =1)
-        o_with_VALP_B1.to_csv('./save/2017DC1.csv', index = False)
-
-
+        df = pd.read_csv('./save/2017DC1.csv')
+        self.data = df.drop(['주택가격중위수'], axis=1)
+        self.target = df['주택가격중위수']
+        print(self.data.shape)
+        print(self.target.shape)
 
     '''
-    
+    6.파티션
     '''
 
     def partition(self):
-        df = pd.read_csv('./save/stroke.csv')
-        data = df.drop(['뇌졸중'], axis=1)
-        target = df['뇌졸중']
-        undersample = RandomUnderSampler(sampling_strategy=0.333, random_state=2)
-        data_under, target_under = undersample.fit(data, target)
-        X_train, X_test, y_train, y_test = train_test_split(data_under, target_under, test_size=0.5,
-                                                            random_state=42, stratify=target_under)
+        self.target_id()
+        X_train, X_test, y_train, y_test = train_test_split(self.data, self.target, test_size=0.5,
+                                                            random_state=42)
         print('X_train shape:', X_train.shape)
         print('X_test shape:', X_test.shape)
         print('y_train shape:', y_train.shape)
         print('y_test shape:', y_test.shape)
+        return X_train
+
+
+"""
+    '''
+        7.핏
+        '''
+
+    def fit(self):
+        rf = RandomForestClassifier(n_estimators=100, random_state=0)
+        X_train, X_test, y_train, y_test = self.partition()
+        self.model = rf.fit(X_train, y_train)
+
+    '''
+    8.예측
+    '''
+
+    def predicate(self):
+        model = self.model
+        X_train, X_test, y_train, y_test = self.partition()
+        self.pred = model.predict(X_test)
+        print(f'Accuracy on training set: {model.score(X_train, y_train):.5f}')
+        print(f'Accuracy on training set: {model.score(y_test, self.pred):.5f}')"""
